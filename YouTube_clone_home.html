@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./YT_style/home.css" />
+  </head>
+  <body></body>
+</html>
+<script type="module">
+  import youtube_home_layout from './YT_javascript/YT_home.js'
+
+  let create = document.querySelector('body')
+  create.innerHTML = youtube_home_layout() // this is the import of
+
+  //
+  //https://youtube.googleapis.com/youtube/v3/search?q=tesla&key=[YOUR_API_KEY]
+
+  let button = document.getElementById('sample') // event listner added to the button
+  button.addEventListener('click', searchVideos)
+
+  let API = 'AIzaSyCNawtiR_wWWNxu_P3sbvppRzNtq5Gowro' //Key2 is in use
+
+  let search_results_div = document.getElementById(
+    'vertical_everything_display_search'
+  )
+
+  searchVideos()
+
+  async function searchVideos() {
+    try {
+      let inp = document.getElementById('search_in_yt').value || 'the villagers'
+
+      let res = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/search?q=${inp}&key=${API}&type=video&maxResults=30&part=snippet`
+      )
+
+      let data = await res.json()
+      console.log('data:', data)
+
+      let array_of_videos = data.items
+
+      appendVideos(array_of_videos)
+    } catch (err) {
+      console.log('err:', err)
+    }
+  }
+
+  const appendVideos = (arr) => {
+    search_results_div.innerHTML = ''
+    console.log(arr)
+    arr.forEach(({ snippet, id: { videoId } }) => {
+      // console.log("videoId:", videoId);
+      console.log('Snippet', snippet)
+      let div = document.createElement('div')
+      div.setAttribute('id', 'title_tag')
+
+      // let iframe = document.createElement("iframe");
+      // iframe.src = `https://www.youtube.com/embed/${videoId}`;
+      // iframe.width = "95%";
+      // // iframe.marginLeft ="5%";
+      // iframe.height = "180px";
+      // //iframe.allowfullscreen = "true";
+      // iframe.setAttribute("allowfullscreen", true);
+
+      let title_para = document.createElement('p')
+      title_para.setAttribute('class', 'title_tag')
+      title_para.innerHTML = snippet.title
+
+      let thumbnail = document.createElement('img')
+      thumbnail.setAttribute('id', 'imgVideo')
+      thumbnail.src = snippet.thumbnails.medium.url
+
+      let data_to_send_new_html = {
+        snippet,
+        videoId,
+        // when key value pair have exect same name
+      }
+
+      div.onclick = () => {
+        showVideo(data_to_send_new_html)
+      }
+
+      function showVideo(data) {
+        localStorage.setItem('clicked_yt_video', JSON.stringify(data))
+
+        window.location.href = 'Youtube_video_play_page.html'
+      }
+
+      div.append(thumbnail, title_para)
+
+      search_results_div.append(div)
+    })
+  }
+
+  let youtubeicon = document.querySelector('#nav_yt_icon')
+  youtubeicon.addEventListener('click', function () {
+    window.location.href = 'YouTube_clone_home.html'
+  })
+
+  // function showVideo(data)
+  // {
+  //     localStorage.setItem("clicked_Video",JSON.stringify(data))
+
+  //     window.location.href="video.html"
+  // }
+</script>
